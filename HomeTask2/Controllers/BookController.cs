@@ -42,6 +42,8 @@ namespace HomeTask2.Controllers
                 case "title":
                     books = books.OrderBy(b => b.Title);
                     break;
+                default:
+                    return NotFound();
             }
 
             if (!ModelState.IsValid)
@@ -56,7 +58,12 @@ namespace HomeTask2.Controllers
         [HttpGet("books/{id:int}")]
         public async Task<ActionResult> GetBookById(int id)
         {
-            return Ok(_mapper.Map<Book, BookWithReviewsDto>(await _bookRepository.FindById(id)));
+            Book? book = await _bookRepository.FindById(id);
+
+            if(book is not null)
+                return Ok(_mapper.Map<Book, BookWithReviewsDto>(book));
+
+            return NotFound();
         }
 
 
@@ -72,7 +79,6 @@ namespace HomeTask2.Controllers
                 else
                     return 1;
             };
-
             return Ok(books
                 .Where(b => b.Genre.ToLower() == genre.ToLower() && b.Reviews.Count >= 10)
                 .OrderBy(b => getRating(b))
@@ -85,8 +91,13 @@ namespace HomeTask2.Controllers
         {
             if (_config.GetValue<string>("SecretKey") != secret) 
                 return BadRequest("incorrect key ");
-            
-            return Ok(_bookRepository.Remove(await _bookRepository.FindById(id)));
+
+            Book? book = await _bookRepository.FindById(id);
+
+            if (book is not null)
+                return Ok(_bookRepository.Remove(book));
+
+            return NotFound();
         }
 
 

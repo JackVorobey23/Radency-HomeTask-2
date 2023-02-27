@@ -7,9 +7,13 @@ using System.Reflection;
 using HomeTask2.Dto;
 using FluentValidation.AspNetCore;
 using FluentValidation;
+using HomeTask2.Middleware;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.HttpLogging;
+
 var builder = WebApplication.CreateBuilder(args);
 
-
+    
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -28,7 +32,16 @@ builder.Services.AddFluentValidationClientsideAdapters();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-builder.Services.AddHttpLogging(opt => opt.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestQuery);
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields =
+    HttpLoggingFields.RequestHeaders |
+    HttpLoggingFields.RequestBody |
+    HttpLoggingFields.RequestQuery |
+    HttpLoggingFields.ResponseHeaders |
+    HttpLoggingFields.ResponseBody |
+    HttpLoggingFields.Response;
+});
 
 var app = builder.Build();
 
@@ -39,9 +52,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpLogging();
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseCors(c => c.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 
 app.MapControllers();
 
