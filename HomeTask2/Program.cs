@@ -3,12 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using HomeTask2.Interfaces;
 using HomeTask2.Repository;
 using HomeTask2.DataModel;
-using System.Reflection;
-using HomeTask2.Dto;
 using FluentValidation.AspNetCore;
 using FluentValidation;
-using HomeTask2.Middleware;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.HttpLogging;
 
 var builder = WebApplication.CreateBuilder(args);
